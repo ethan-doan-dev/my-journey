@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>CPU Task Scheduler</title>                                   
+    </head>
+    <body>
+        <script>
+                
+        const processQueue = [
+        { id: "P_001", name: "Render Graphics", priority: 2, executionTime: 120 }, 
+        { id: "P_002", name: "Background Sync", priority: 5, executionTime: 45 },
+        { id: "P_003", name: "Update Drivers", priority: 3, executionTime: 300 },
+        { id: "P_004", name: "Keyboard Input", priority: 1, executionTime: 5 },
+        { id: "P_005", name: "Audio Processing", priority: 2, executionTime: 30 }
+        ];
+
+            const sortedQueue = [...processQueue].sort((a,b) => {
+
+                if (a.priority !== b.priority) {
+                    return a.priority - b.priority;
+                }
+                    return a.executionTime - b.executionTime;
+
+            })  
+
+            const heavyTasks = processQueue.filter( process => process.executionTime >= 100)
+            
+            const systemLogs = sortedQueue.map(
+
+            process => `[Priority ${process.priority}] ${process.name} will complete in ${process.executionTime}ms`
+            
+            );
+            console.log(sortedQueue);
+            console.log(heavyTasks);
+            console.log(systemLogs);
+
+        </script>
+    </body>
+    </html>
