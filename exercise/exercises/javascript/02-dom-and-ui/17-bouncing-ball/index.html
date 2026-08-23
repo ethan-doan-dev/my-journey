@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Bouncing Neon Ball - Canvas 2D</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+
+        #board {
+            background-color: #0b0f19;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="board" width="800" height="500"></canvas>
+
+    <script>
+        const canvas = document.getElementById("board");
+        const ctx = canvas.getContext('2d');
+
+        const ball1 = {
+            x: 400,
+            y: 250,
+            vx: 10,
+            vy: 5,
+            radius: 25,
+            color: '#38bdf8'
+        };
+
+        const ball2={
+            x: 600,
+            y: 275,
+            vx: 10,
+            vy: 10,
+            radius: 25,
+            color: 'red'
+        }
+        function drawBall() {
+            ctx.beginPath();
+            ctx.arc(ball1.x, ball1.y, ball1.radius, 0, Math.PI * 2);
+            ctx.fillStyle = ball1.color;
+            ctx.fill();
+            ctx.closePath();
+
+            ctx.beginPath();
+            ctx.arc(ball2.x, ball2.y, ball2.radius, 0, Math.PI * 2);
+            ctx.fillStyle = ball2.color;
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        function updateBall() {
+            ball1.x += ball1.vx;
+            ball1.y += ball1.vy;
+            ball2.x += ball2.vx;
+            ball2.y += ball2.vy;
+
+            if (ball1.x - ball1.radius < 0 || ball1.x + ball1.radius > canvas.width) {
+                ball1.vx = -ball1.vx;
+            }
+
+            if (ball1.y - ball1.radius < 0 || ball1.y + ball1.radius > canvas.height) {
+                ball1.vy = -ball1.vy;
+            }
+
+            if (ball2.x - ball2.radius < 0 || ball2.x + ball2.radius > canvas.width) {
+                ball2.vx = -ball2.vx;
+            }
+
+            if (ball2.y - ball2.radius < 0 || ball2.y + ball2.radius > canvas.height) {
+                ball2.vy = -ball2.vy;
+            }
+
+            const dx = ball2.x - ball1.x;
+            const dy = ball2.y - ball1.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            const minDistance = ball1.radius + ball2.radius;
+
+            if (distance < minDistance) {
+
+                const tempVx = ball1.vx;
+                const tempVy = ball1.vy;
+                ball1.vx = ball2.vx;
+                ball1.vy = ball2.vy;
+                ball2.vx = tempVx;
+                ball2.vy = tempVy;
+
+                const overlap = minDistance - distance;
+                const overlapX = (dx / (distance || 1)) * (overlap / 2);
+                const overlapY = (dy / (distance || 1)) * (overlap / 2);
+
+                ball1.x -= overlapX;
+                ball1.y -= overlapY;
+                ball2.x += overlapX;
+                ball2.y += overlapY;
+    }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            updateBall();
+            drawBall();
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>

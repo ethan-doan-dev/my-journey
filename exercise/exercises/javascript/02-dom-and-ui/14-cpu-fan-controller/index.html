@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CPU Fan Controller</title>      
+    <style>
+        :root {
+            --bg-color: #f4f6f8;
+            --card-bg: #ffffff;
+            --text-color: #2c3e50;
+            --border-color: #e2e8f0;
+            --safe-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --primary-color: #2563eb;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            padding: 28px;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 420px;
+        }
+
+        h1 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #1e293b;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        input[type="number"], select {
+            width: 100%;
+            padding: 10px 12px;
+            font-size: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input[type="number"]:focus, select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 8px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        button:hover {
+            background-color: #1d4ed8;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        #info-status {
+            color: var(--danger-color);
+            font-size: 13px;
+            margin-top: 6px;
+            min-height: 18px;
+            font-weight: 500;
+        }
+
+        .output-card {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .output-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+
+        .output-value {
+            font-weight: 700;
+        }
+
+        .safe { color: var(--safe-color); }
+        .warning { color: var(--warning-color); }
+        .danger { color: var(--danger-color); }
+    </style>    
+</head>
+<body>
+
+    <div class="container">
+        <h1>CPU Fan Controller</h1>
+
+        <div class="form-group">
+            <label for="temperature-input">CPU Temperature (°C):</label>
+            <input type="number" id="temperature-input" placeholder="0 - 120" min="0" max="120">
+            <p id="info-status"></p>
+        </div>
+
+        <div class="form-group">
+            <label for="mode">Operation Mode:</label>
+            <select id="mode">
+                <option value="normal">Normal Mode</option>
+                <option value="gaming">Gaming Mode</option>
+            </select>
+        </div>
+
+        <button id="update-btn">Update Status</button>
+
+        <div class="output-card">
+            <div class="output-row">
+                <span>Fan Speed:</span>
+                <span id="fan-speed" class="output-value">--</span>
+            </div>
+
+            <div class="output-row">
+                <span>CPU Status:</span>
+                <span id="cpu-status" class="output-value">--</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const temperatureInput = document.getElementById("temperature-input");
+        const modeSelect = document.getElementById("mode");
+        const updateBtn = document.getElementById("update-btn");
+        const fanSpeed = document.getElementById("fan-speed");
+        const cpuStatus = document.getElementById("cpu-status");
+        const infoStatus = document.getElementById("info-status");
+
+        function updateController() {
+            const rawVal = temperatureInput.value.trim();
+            const tempVal = Number(rawVal);
+
+            infoStatus.textContent = "";
+            fanSpeed.textContent = "--";
+            cpuStatus.textContent = "--";
+            cpuStatus.className = "output-value"; 
+
+            if (rawVal === "" || isNaN(tempVal) || tempVal < 0 || tempVal > 120) {
+                infoStatus.textContent = "Please enter a valid temperature (0°C - 120°C).";
+                return;
+            }
+
+            const isGaming = modeSelect.value === "gaming";
+
+            if (tempVal < 50) {
+                fanSpeed.textContent = isGaming ? "40% SPEED" : "20% SPEED";
+                cpuStatus.textContent = "✔ SAFE";
+                cpuStatus.classList.add("safe");
+            } else if (tempVal < 80) {
+                fanSpeed.textContent = isGaming ? "70% SPEED" : "50% SPEED";
+                cpuStatus.textContent = "⚠ MODERATE";
+                cpuStatus.classList.add("warning");
+            } else {
+                fanSpeed.textContent = "100% MAX SPEED";
+                cpuStatus.textContent = "✖ OVERHEATING";
+                cpuStatus.classList.add("danger");
+            }
+        }
+
+        updateBtn.addEventListener("click", updateController);
+
+        temperatureInput.addEventListener("keydown", function(e) {
+            if (e.key === "Enter") {
+                updateController();
+            }
+        });
+
+        modeSelect.addEventListener("change", function() {
+            if (temperatureInput.value.trim() !== "") {
+                updateController();
+            }
+        });
+    </script>
+</body>
+</html>

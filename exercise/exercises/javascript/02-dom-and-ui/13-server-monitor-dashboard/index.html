@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Server Monitor</title>      
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <main>
+        <h1>Server Monitor</h1>
+        
+        <!-- === INPUT SECTION === -->
+        
+        <!-- Temperature Input -->
+        <div>
+            <label for="temperature-input">Temperature:</label>
+            <input type="number" id="temperature-input" placeholder="10°C to 100°C" />
+            <p id="info-status1"></p>
+        </div>
+        
+        <!-- Electricity Consumption Input -->
+        <div>
+            <label for="electricity-consumption">Electricity consumption:</label>
+            <input type="number" id="electricity-consumption" placeholder="Power consumption (kW)" />
+            <p id="info-status2"></p>
+        </div>
+        
+        <!-- Room Door Status Dropdown -->
+        <div>
+            <label for="door-status">Room door status:</label>
+            <select id="door-status">
+                <option value="closed">Closed</option>
+                <option value="open">Open</option>
+            </select>
+        </div>
+        
+        <!-- === ACTION SECTION === -->
+        <div>
+            <button type="button" id="update-btn">Update</button>
+        </div>
+        
+        <!-- === OUTPUT / MONITORING SECTION === -->
+        <div>
+            <label>Cooling system:</label>
+            <span id="cooling-status" class="status-value">--</span>
+        </div>
+        
+        <div>
+            <label>Siren:</label>
+            <span id="siren-status" class="status-value">--</span>
+        </div>
+
+        <!-- === INSTRUCTIONS / HOW IT WORKS === -->
+        <div class="instructions-box">
+            <h3>⚙️ System Rules</h3>
+            <ul>
+                <li><strong>Cooling:</strong> Normal (24°C - 35°C) | Rapid Mode (> 35°C).</li>
+                <li><strong>Danger (🚨):</strong> Triggered if Temp > 45°C OR Power > 50kW.</li>
+                <li><strong>Warning (⚠):</strong> Triggered if the Server Room door is left Open.</li>
+            </ul>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
