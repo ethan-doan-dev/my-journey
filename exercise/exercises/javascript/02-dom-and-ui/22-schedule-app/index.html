@@ -14,6 +14,7 @@
         display: flex;
         min-height: 100vh;
         overflow-x: hidden;
+        font-family: Arial, sans-serif;
       }
 
       .sidebar {
@@ -65,10 +66,10 @@
         overflow-x: auto;
         padding-bottom: 10px;
       }
-      
+
       .day-column {
         flex: 1;
-        min-width: 130px; 
+        min-width: 160px;
         border: 1px solid #e0e0e0;
         border-radius: 8px;
         background-color: #f9f9f9;
@@ -89,14 +90,84 @@
       .day-content {
         padding: 12px;
         flex: 1;
-        min-height: 450px; 
+        min-height: 450px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .add-task-box {
+        display: flex;
+        gap: 5px;
+      }
+
+      .task-input {
+        flex: 1;
+        padding: 6px 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 13px;
+        outline: none;
+      }
+
+      .task-input:focus {
+        border-color: #007bff;
+      }
+
+      .add-btn {
+        padding: 6px 10px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+      }
+
+      .add-btn:hover {
+        background-color: #0056b3;
+      }
+
+      .task-list {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .task-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: #fff;
+        padding: 8px;
+        border-radius: 4px;
+        border: 1px solid #e2e2e2;
+        word-break: break-word;
+      }
+
+      .task-checkbox {
+        cursor: pointer;
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+      }
+
+      .task-text {
+        font-size: 14px;
+        color: #333;
+        transition: all 0.2s ease;
+      }
+
+      .task-item.completed .task-text {
+        text-decoration: line-through;
+        color: #888;
       }
     </style>
   </head>
   <body>
     <aside class="sidebar" id="sidebar"></aside>
     <main class="main-content">
-
       <div class="header-bar">
         <button class="toggle-btn" id="toggleBtn">☰</button>
         <div class="schedule-logo">SCHEDULE</div>
@@ -105,37 +176,79 @@
       <div class="container">
         <div class="day-column">
           <div class="day-header">Monday</div>
-          <div class="day-content"></div>
+          <div class="day-content">
+            <div class="add-task-box">
+              <input type="text" class="task-input" placeholder="+ add task..." />
+              <button class="add-btn">+</button>
+            </div>
+            <ul class="task-list"></ul>
+          </div>
         </div>
 
         <div class="day-column">
           <div class="day-header">Tuesday</div>
-          <div class="day-content"></div>
+          <div class="day-content">
+            <div class="add-task-box">
+              <input type="text" class="task-input" placeholder="+ add task..." />
+              <button class="add-btn">+</button>
+            </div>
+            <ul class="task-list"></ul>
+          </div>
         </div>
 
         <div class="day-column">
           <div class="day-header">Wednesday</div>
-          <div class="day-content"></div>
+          <div class="day-content">
+            <div class="add-task-box">
+              <input type="text" class="task-input" placeholder="+ add task..." />
+              <button class="add-btn">+</button>
+            </div>
+            <ul class="task-list"></ul>
+          </div>
         </div>
 
         <div class="day-column">
           <div class="day-header">Thursday</div>
-          <div class="day-content"></div>
+          <div class="day-content">
+            <div class="add-task-box">
+              <input type="text" class="task-input" placeholder="+ add task..." />
+              <button class="add-btn">+</button>
+            </div>
+            <ul class="task-list"></ul>
+          </div>
         </div>
-        
+
         <div class="day-column">
           <div class="day-header">Friday</div>
-          <div class="day-content"></div>
+          <div class="day-content">
+            <div class="add-task-box">
+              <input type="text" class="task-input" placeholder="+ add task..." />
+              <button class="add-btn">+</button>
+            </div>
+            <ul class="task-list"></ul>
+          </div>
         </div>
 
         <div class="day-column">
           <div class="day-header">Saturday</div>
-          <div class="day-content"></div>
+          <div class="day-content">
+            <div class="add-task-box">
+              <input type="text" class="task-input" placeholder="+ add task..." />
+              <button class="add-btn">+</button>
+            </div>
+            <ul class="task-list"></ul>
+          </div>
         </div>
 
         <div class="day-column">
           <div class="day-header">Sunday</div>
-          <div class="day-content"></div>
+          <div class="day-content">
+            <div class="add-task-box">
+              <input type="text" class="task-input" placeholder="+ add task..." />
+              <button class="add-btn">+</button>
+            </div>
+            <ul class="task-list"></ul>
+          </div>
         </div>
       </div>
 
@@ -145,6 +258,43 @@
 
         toggleBtn.addEventListener('click', () => {
           sidebar.classList.toggle('hidden');
+        });
+
+        document.querySelectorAll('.day-column').forEach((column) => {
+          const input = column.querySelector('.task-input');
+          const addBtn = column.querySelector('.add-btn');
+          const taskList = column.querySelector('.task-list');
+
+          function addTask() {
+            const taskText = input.value.trim();
+            if (!taskText) return;
+
+            const li = document.createElement('li');
+            li.className = 'task-item';
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'task-checkbox';
+
+            const span = document.createElement('span');
+            span.className = 'task-text';
+            span.textContent = taskText;
+
+            checkbox.addEventListener('change', () => {
+              li.classList.toggle('completed', checkbox.checked);
+            });
+
+            li.appendChild(checkbox);
+            li.appendChild(span);
+            taskList.appendChild(li);
+
+            input.value = '';
+          }
+
+          addBtn.addEventListener('click', addTask);
+          input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addTask();
+          });
         });
       </script>
     </main>
