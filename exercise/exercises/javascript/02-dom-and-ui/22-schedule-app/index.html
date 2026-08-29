@@ -75,16 +75,19 @@
         background-color: #f9f9f9;
         display: flex;
         flex-direction: column;
+        transition: all 0.3s ease;
       }
 
       .day-header {
         font-weight: bold;
         padding: 12px;
-        text-align: center;
         border-bottom: 1px solid #e0e0e0;
         background-color: #f1f1f1;
         border-top-left-radius: 8px;
         border-top-right-radius: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
       }
 
       .day-content {
@@ -179,10 +182,86 @@
       .delete-btn:hover {
         color: #dc3545;
       }
+
+      .expand-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        color: #666;
+        transition: color 0.2s;
+        padding: 0 4px;
+      }
+
+      .expand-btn:hover {
+        color: #000;
+      }
+
+      .overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.6);
+        z-index: 998;
+      }
+      .overlay.active {
+        display: block;
+      }
+
+      .day-column.expanded {
+        position: fixed;
+        top: 5vh;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90vw;
+        max-width: 1000px;
+        height: 90vh;
+        z-index: 999;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+        overflow-y: auto;
+      }
+      .day-column.expanded .day-content {
+        min-height: auto;
+      }
+
+      .workspace-area {
+        display: none;
+        flex-direction: column;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 2px dashed #ccc;
+        flex: 1; 
+      }
+      .day-column.expanded .workspace-area {
+        display: flex;
+      }
+
+      .workspace-area h4 {
+        margin-bottom: 10px;
+        color: #333;
+      }
+
+      .workspace-textarea {
+        flex: 1;
+        min-height: 250px;
+        padding: 12px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-family: inherit;
+        font-size: 14px;
+        resize: vertical;
+        outline: none;
+      }
+      .workspace-textarea:focus {
+        border-color: #007bff;
+      }
     </style>
   </head>
   <body>
     <aside class="sidebar" id="sidebar"></aside>
+    
+    <div class="overlay" id="overlay"></div>
+
     <main class="main-content">
       <div class="header-bar">
         <button class="toggle-btn" id="toggleBtn">☰</button>
@@ -271,16 +350,25 @@
      <script>
       const toggleBtn = document.getElementById('toggleBtn');
       const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('overlay');
 
       toggleBtn.addEventListener('click', () => {
         sidebar.classList.toggle('hidden');
+      });
+
+      overlay.addEventListener('click', () => {
+        document.querySelectorAll('.day-column.expanded').forEach(col => {
+          col.classList.remove('expanded');
+          col.querySelector('.expand-btn').innerHTML = '⛶';
+        });
+        overlay.classList.remove('active');
       });
 
       function saveData() {
         const scheduleData = {};
         
         document.querySelectorAll('.day-column').forEach((column) => {
-          const dayName = column.querySelector('.day-header').innerText;
+          const dayName = column.querySelector('.day-header span').innerText;
           const tasks = [];
           
           column.querySelectorAll('.task-item').forEach((item) => {
@@ -290,7 +378,12 @@
             });
           });
           
-          scheduleData[dayName] = tasks;
+          const workspaceText = column.querySelector('.workspace-textarea').value;
+
+          scheduleData[dayName] = {
+            tasks: tasks,
+            workspaceText: workspaceText
+          };
         });
 
         localStorage.setItem('myScheduleApp', JSON.stringify(scheduleData));
@@ -335,16 +428,62 @@
         const savedData = JSON.parse(localStorage.getItem('myScheduleApp')) || {};
 
         document.querySelectorAll('.day-column').forEach((column) => {
-          const dayName = column.querySelector('.day-header').innerText;
+          const header = column.querySelector('.day-header');
+          const dayName = header.innerText;
+          
+          header.innerHTML = `<span>${dayName}</span>`;
+          const expandBtn = document.createElement('button');
+          expandBtn.className = 'expand-btn';
+          expandBtn.innerHTML = '⛶';
+          expandBtn.title = "zoom in";
+          header.appendChild(expandBtn);
+
+          const dayContent = column.querySelector('.day-content');
+          const workspace = document.createElement('div');
+          workspace.className = 'workspace-area';
+          workspace.innerHTML = `
+            <h4>workspace</h4>
+            <textarea class="workspace-textarea" placeholder="Enter workspace notes here..."></textarea>
+          `;
+          dayContent.appendChild(workspace);
+
           const input = column.querySelector('.task-input');
           const addBtn = column.querySelector('.add-btn');
           const taskList = column.querySelector('.task-list');
+          const textarea = workspace.querySelector('.workspace-textarea');
 
           if (savedData[dayName]) {
-            savedData[dayName].forEach(task => {
+            const dayData = savedData[dayName];
+            const tasks = Array.isArray(dayData) ? dayData : (dayData.tasks || []);
+            const workspaceText = dayData.workspaceText || "";
+
+            tasks.forEach(task => {
               createTaskElement(task.text, task.completed, taskList);
             });
+            textarea.value = workspaceText;
           }
+
+          textarea.addEventListener('input', () => {
+            saveData();
+          });
+
+          expandBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isExpanded = column.classList.contains('expanded');
+            
+            document.querySelectorAll('.day-column.expanded').forEach(col => {
+              col.classList.remove('expanded');
+              col.querySelector('.expand-btn').innerHTML = '⛶';
+            });
+
+            if (!isExpanded) {
+              column.classList.add('expanded');
+              expandBtn.innerHTML = '✖';
+              overlay.classList.add('active');
+            } else {
+              overlay.classList.remove('active');
+            }
+          });
 
           function addTask() {
             const taskText = input.value.trim();
@@ -363,7 +502,7 @@
       }
 
       initApp();
-</script>
+    </script>
     </main>
   </body>
 </html>
