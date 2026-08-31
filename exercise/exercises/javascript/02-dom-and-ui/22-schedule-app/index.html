@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="vi">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
@@ -44,10 +44,102 @@
       transform: translateX(0);
       transition: transform 0.3s ease;
       overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      padding: 20px 15px;
+      border-right: 1px solid #e0e0e0;
     }
 
     .sidebar.hidden {
       transform: translateX(-100%);
+    }
+
+    .sidebar-header {
+      padding-bottom: 15px;
+      border-bottom: 1px solid #e0e0e0;
+      margin-bottom: 15px;
+    }
+
+    .sidebar-logo {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      color: #1a1a1a;
+      text-transform: uppercase;
+    }
+
+    .sidebar-content {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .sidebar-section-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #777;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+    }
+
+    .notebook-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .notebook-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #444;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .notebook-item:hover {
+      background: #e8e6e6;
+      color: #000;
+    }
+
+    .notebook-item.active {
+      background: #e0eafc;
+      color: #007bff;
+      font-weight: 700;
+    }
+
+    .sidebar-footer {
+      padding-top: 15px;
+      border-top: 1px solid #e0e0e0;
+      margin-top: auto;
+    }
+
+    .switch-notebook-btn {
+      width: 100%;
+      padding: 11px 12px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .switch-notebook-btn:hover {
+      background: #007bff;
+      color: #fff;
+      border-color: #007bff;
     }
 
     .overlay {
@@ -394,7 +486,32 @@
   </style>
 </head>
 <body>
-  <aside class="sidebar hidden" id="sidebar"></aside>
+  <aside class="sidebar hidden" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">LAB</div>
+    </div>
+    
+    <div class="sidebar-content">
+      <div class="sidebar-section-title">Notebooks</div>
+      <ul class="notebook-list">
+        <li class="notebook-item active">
+          <span>📅</span> Current Week Schedule
+        </li>
+        <li class="notebook-item">
+          <span>📝</span> Work Notes
+        </li>
+        <li class="notebook-item">
+          <span>💡</span> Project Ideas
+        </li>
+      </ul>
+    </div>
+
+    <div class="sidebar-footer">
+      <button class="switch-notebook-btn" id="switchNotebookBtn" type="button">
+        <span>🔄</span> Switch Notebook
+      </button>
+    </div>
+  </aside>
 
   <div class="overlay" id="overlay"></div>
 
@@ -497,6 +614,7 @@
     const toggleBtn = document.getElementById("toggleBtn");
     const sidebar = document.getElementById("sidebar");
     const overlay = document.getElementById("overlay");
+    const switchNotebookBtn = document.getElementById("switchNotebookBtn");
 
     function closeExpandedDays() {
       document.querySelectorAll(".day-column.expanded").forEach((column) => {
@@ -714,6 +832,10 @@
           overlay.classList.remove("active");
         }
       }
+    });
+
+    switchNotebookBtn.addEventListener("click", () => {
+      alert("Switch notebook feature is under development!");
     });
 
     overlay.addEventListener("click", closeOverlay);
