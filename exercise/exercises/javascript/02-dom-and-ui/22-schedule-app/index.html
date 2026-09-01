@@ -199,11 +199,22 @@
       color: #000;
     }
 
+    .view-content {
+      width: 100%;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .view-content.hidden {
+      display: none !important;
+    }
+
     .container {
       width: 100%;
       display: flex;
       gap: 15px;
-      margin: 40px auto 0;
+      margin: 30px auto 0;
       padding-bottom: 10px;
       overflow-x: auto;
     }
@@ -407,6 +418,83 @@
       border-color: #007bff;
     }
 
+    .notes-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-top: 25px;
+      flex: 1;
+      min-height: calc(100vh - 120px);
+    }
+
+    .notes-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .notes-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+
+    .notes-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .save-status {
+      font-size: 13px;
+      color: #28a745;
+      font-weight: 500;
+    }
+
+    .action-btn {
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #dc3545;
+      background: #fff;
+      border: 1px solid #dc3545;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .action-btn:hover {
+      background: #dc3545;
+      color: #fff;
+    }
+
+    .notes-textarea {
+      width: 100%;
+      flex: 1;
+      min-height: 400px;
+      padding: 18px;
+      font-size: 15px;
+      line-height: 1.6;
+      color: #2c3e50;
+      background: #fdfdfd;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      outline: none;
+      resize: vertical;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.03);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .notes-textarea:focus {
+      border-color: #007bff;
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    }
+
     @media (max-width: 768px) {
       .main-content {
         padding: 15px;
@@ -467,6 +555,10 @@
         min-height: 150px;
         font-size: 16px;
       }
+
+      .notes-wrapper {
+        min-height: calc(100vh - 100px);
+      }
     }
 
     @media (max-width: 400px) {
@@ -494,13 +586,13 @@
     <div class="sidebar-content">
       <div class="sidebar-section-title">Notebooks</div>
       <ul class="notebook-list">
-        <li class="notebook-item active">
+        <li class="notebook-item active" data-view="schedule">
           <span>📅</span> Current Week Schedule
         </li>
-        <li class="notebook-item">
+        <li class="notebook-item" data-view="work-notes">
           <span>📝</span> Work Notes
         </li>
-        <li class="notebook-item">
+        <li class="notebook-item" data-view="project-ideas">
           <span>💡</span> Project Ideas
         </li>
       </ul>
@@ -518,103 +610,141 @@
   <main class="main-content">
     <div class="header-bar">
       <button class="toggle-btn" id="toggleBtn" type="button">☰</button>
-      <div class="schedule-logo">SCHEDULE</div>
+      <div class="schedule-logo" id="headerTitle">SCHEDULE</div>
     </div>
 
-    <div class="container">
-      <div class="day-column">
-        <div class="day-header">
-          <span class="day-name">Monday</span>
-        </div>
-        <div class="day-content">
-          <div class="add-task-box">
-            <input type="text" class="task-input" placeholder="+ add task..." />
-            <button class="add-btn" type="button">+</button>
+    <div class="view-content" id="scheduleView">
+      <div class="container">
+        <div class="day-column">
+          <div class="day-header">
+            <span class="day-name">Monday</span>
           </div>
-          <ul class="task-list"></ul>
+          <div class="day-content">
+            <div class="add-task-box">
+              <input type="text" class="task-input" placeholder="+ add task..." />
+              <button class="add-btn" type="button">+</button>
+            </div>
+            <ul class="task-list"></ul>
+          </div>
+        </div>
+
+        <div class="day-column">
+          <div class="day-header">
+            <span class="day-name">Tuesday</span>
+          </div>
+          <div class="day-content">
+            <div class="add-task-box">
+              <input type="text" class="task-input" placeholder="+ add task..." />
+              <button class="add-btn" type="button">+</button>
+            </div>
+            <ul class="task-list"></ul>
+          </div>
+        </div>
+
+        <div class="day-column">
+          <div class="day-header">
+            <span class="day-name">Wednesday</span>
+          </div>
+          <div class="day-content">
+            <div class="add-task-box">
+              <input type="text" class="task-input" placeholder="+ add task..." />
+              <button class="add-btn" type="button">+</button>
+            </div>
+            <ul class="task-list"></ul>
+          </div>
+        </div>
+
+        <div class="day-column">
+          <div class="day-header">
+            <span class="day-name">Thursday</span>
+          </div>
+          <div class="day-content">
+            <div class="add-task-box">
+              <input type="text" class="task-input" placeholder="+ add task..." />
+              <button class="add-btn" type="button">+</button>
+            </div>
+            <ul class="task-list"></ul>
+          </div>
+        </div>
+
+        <div class="day-column">
+          <div class="day-header">
+            <span class="day-name">Friday</span>
+          </div>
+          <div class="day-content">
+            <div class="add-task-box">
+              <input type="text" class="task-input" placeholder="+ add task..." />
+              <button class="add-btn" type="button">+</button>
+            </div>
+            <ul class="task-list"></ul>
+          </div>
+        </div>
+
+        <div class="day-column">
+          <div class="day-header">
+            <span class="day-name">Saturday</span>
+          </div>
+          <div class="day-content">
+            <div class="add-task-box">
+              <input type="text" class="task-input" placeholder="+ add task..." />
+              <button class="add-btn" type="button">+</button>
+            </div>
+            <ul class="task-list"></ul>
+          </div>
+        </div>
+
+        <div class="day-column">
+          <div class="day-header">
+            <span class="day-name">Sunday</span>
+          </div>
+          <div class="day-content">
+            <div class="add-task-box">
+              <input type="text" class="task-input" placeholder="+ add task..." />
+              <button class="add-btn" type="button">+</button>
+            </div>
+            <ul class="task-list"></ul>
+          </div>
         </div>
       </div>
-      <div class="day-column">
-        <div class="day-header">
-          <span class="day-name">Tuesday</span>
-        </div>
-        <div class="day-content">
-          <div class="add-task-box">
-            <input type="text" class="task-input" placeholder="+ add task..." />
-            <button class="add-btn" type="button">+</button>
+    </div>
+
+    <div class="view-content hidden" id="workNotesView">
+      <div class="notes-wrapper">
+        <div class="notes-header">
+          <h2 class="notes-title">📝 Work Notes</h2>
+          <div class="notes-meta">
+            <span id="workNotesStatus" class="save-status">Auto-saved</span>
+            <button type="button" id="clearWorkNotesBtn" class="action-btn">Clear Notes</button>
           </div>
-          <ul class="task-list"></ul>
         </div>
+        <textarea id="workNotesArea" class="notes-textarea" placeholder="Type your work notes here..."></textarea>
       </div>
-      <div class="day-column">
-        <div class="day-header">
-          <span class="day-name">Wednesday</span>
-        </div>
-        <div class="day-content">
-          <div class="add-task-box">
-            <input type="text" class="task-input" placeholder="+ add task..." />
-            <button class="add-btn" type="button">+</button>
+    </div>
+
+    <div class="view-content hidden" id="projectIdeasView">
+      <div class="notes-wrapper">
+        <div class="notes-header">
+          <h2 class="notes-title">💡 Project Ideas</h2>
+          <div class="notes-meta">
+            <span id="projectIdeasStatus" class="save-status">Auto-saved</span>
+            <button type="button" id="clearProjectIdeasBtn" class="action-btn">Clear Notes</button>
           </div>
-          <ul class="task-list"></ul>
         </div>
-      </div>
-      <div class="day-column">
-        <div class="day-header">
-          <span class="day-name">Thursday</span>
-        </div>
-        <div class="day-content">
-          <div class="add-task-box">
-            <input type="text" class="task-input" placeholder="+ add task..." />
-            <button class="add-btn" type="button">+</button>
-          </div>
-          <ul class="task-list"></ul>
-        </div>
-      </div>
-      <div class="day-column">
-        <div class="day-header">
-          <span class="day-name">Friday</span>
-        </div>
-        <div class="day-content">
-          <div class="add-task-box">
-            <input type="text" class="task-input" placeholder="+ add task..." />
-            <button class="add-btn" type="button">+</button>
-          </div>
-          <ul class="task-list"></ul>
-        </div>
-      </div>
-      <div class="day-column">
-        <div class="day-header">
-          <span class="day-name">Saturday</span>
-        </div>
-        <div class="day-content">
-          <div class="add-task-box">
-            <input type="text" class="task-input" placeholder="+ add task..." />
-            <button class="add-btn" type="button">+</button>
-          </div>
-          <ul class="task-list"></ul>
-        </div>
-      </div>
-      <div class="day-column">
-        <div class="day-header">
-          <span class="day-name">Sunday</span>
-        </div>
-        <div class="day-content">
-          <div class="add-task-box">
-            <input type="text" class="task-input" placeholder="+ add task..." />
-            <button class="add-btn" type="button">+</button>
-          </div>
-          <ul class="task-list"></ul>
-        </div>
+        <textarea id="projectIdeasArea" class="notes-textarea" placeholder="Type your project ideas here..."></textarea>
       </div>
     </div>
   </main>
 
   <script>
     const STORAGE_KEY = "myScheduleApp";
+    const WORK_NOTES_KEY = "myScheduleApp_workNotes";
+    const PROJECT_IDEAS_KEY = "myScheduleApp_projectIdeas";
+
     const toggleBtn = document.getElementById("toggleBtn");
     const sidebar = document.getElementById("sidebar");
     const overlay = document.getElementById("overlay");
     const switchNotebookBtn = document.getElementById("switchNotebookBtn");
+    const headerTitle = document.getElementById("headerTitle");
 
     function closeExpandedDays() {
       document.querySelectorAll(".day-column.expanded").forEach((column) => {
@@ -645,13 +775,40 @@
       overlay.classList.remove("active");
     }
 
+    function switchView(viewName) {
+      document.querySelectorAll(".notebook-item").forEach((item) => {
+        if (item.getAttribute("data-view") === viewName) {
+          item.classList.add("active");
+        } else {
+          item.classList.remove("active");
+        }
+      });
+
+      document.querySelectorAll(".view-content").forEach((view) => {
+        view.classList.add("hidden");
+      });
+
+      if (viewName === "schedule") {
+        document.getElementById("scheduleView").classList.remove("hidden");
+        headerTitle.textContent = "SCHEDULE";
+      } else if (viewName === "work-notes") {
+        document.getElementById("workNotesView").classList.remove("hidden");
+        headerTitle.textContent = "WORK NOTES";
+      } else if (viewName === "project-ideas") {
+        document.getElementById("projectIdeasView").classList.remove("hidden");
+        headerTitle.textContent = "PROJECT IDEAS";
+      }
+
+      if (window.innerWidth <= 768) {
+        closeOverlay();
+      }
+    }
+
     function saveData() {
       const scheduleData = {};
       document.querySelectorAll(".day-column").forEach((column) => {
         const dayName = column.querySelector(".day-name")?.textContent;
-        if (!dayName) {
-          return;
-        }
+        if (!dayName) return;
 
         const tasks = Array.from(
           column.querySelectorAll(".task-item")
@@ -775,17 +932,9 @@
 
       function addTask() {
         const text = input.value.trim();
-        if (!text) {
-          return;
-        }
+        if (!text) return;
 
-        createTaskElement(
-          {
-            text,
-            completed: false
-          },
-          taskList
-        );
+        createTaskElement({ text, completed: false }, taskList);
 
         input.value = "";
         input.focus();
@@ -802,9 +951,49 @@
       });
     }
 
+    function setupNotesSection(textareaId, statusId, clearBtnId, storageKey) {
+      const textarea = document.getElementById(textareaId);
+      const statusEl = document.getElementById(statusId);
+      const clearBtn = document.getElementById(clearBtnId);
+
+      if (!textarea) return;
+
+      const savedContent = localStorage.getItem(storageKey);
+      if (savedContent !== null) {
+        textarea.value = savedContent;
+      }
+
+      let saveTimeout;
+      textarea.addEventListener("input", () => {
+        statusEl.textContent = "Saving...";
+        statusEl.style.color = "#e67e22";
+
+        clearTimeout(saveTimeout);
+        saveTimeout = setTimeout(() => {
+          localStorage.setItem(storageKey, textarea.value);
+          statusEl.textContent = "Auto-saved";
+          statusEl.style.color = "#28a745";
+        }, 400);
+      });
+
+      if (clearBtn) {
+        clearBtn.addEventListener("click", () => {
+          if (confirm("Are you sure you want to delete all notes?")) {
+            textarea.value = "";
+            localStorage.removeItem(storageKey);
+            statusEl.textContent = "Cleared";
+            statusEl.style.color = "#dc3545";
+            setTimeout(() => {
+              statusEl.textContent = "Auto-saved";
+              statusEl.style.color = "#28a745";
+            }, 1500);
+          }
+        });
+      }
+    }
+
     function initApp() {
       let savedData = {};
-
       try {
         savedData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
       } catch {
@@ -813,6 +1002,18 @@
 
       document.querySelectorAll(".day-column").forEach((column) => {
         setupDayColumn(column, savedData);
+      });
+
+      setupNotesSection("workNotesArea", "workNotesStatus", "clearWorkNotesBtn", WORK_NOTES_KEY);
+      setupNotesSection("projectIdeasArea", "projectIdeasStatus", "clearProjectIdeasBtn", PROJECT_IDEAS_KEY);
+
+      document.querySelectorAll(".notebook-item").forEach((item) => {
+        item.addEventListener("click", () => {
+          const viewName = item.getAttribute("data-view");
+          if (viewName) {
+            switchView(viewName);
+          }
+        });
       });
 
       if (window.innerWidth <= 768) {
