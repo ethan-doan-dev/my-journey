@@ -1,1318 +1,987 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Schedule App</title>
+  <meta name="description" content="Enterprise-grade Schedule & Productivity Workspace" />
+  <title>Workspace | Enterprise Schedule</title>
+  
+  <!-- Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
   <style>
-    * {
+    /* ==========================================================================
+       1. DESIGN TOKENS & VARIABLES (CSS System)
+       ========================================================================== */
+    :root {
+      /* Base Colors */
+      --brand-50: #eef2ff;
+      --brand-100: #e0e7ff;
+      --brand-500: #6366f1;
+      --brand-600: #4f46e5;
+      --brand-900: #312e81;
+      
+      --danger-500: #ef4444;
+      --danger-50: #fef2f2;
+      --success-500: #10b981;
+
+      /* UI Tokens (Light Theme) */
+      --bg-app: #f8fafc;
+      --bg-surface: #ffffff;
+      --bg-surface-hover: #f1f5f9;
+      --bg-glass: rgba(255, 255, 255, 0.85);
+      
+      --border-light: #e2e8f0;
+      --border-strong: #cbd5e1;
+      --border-focus: var(--brand-500);
+      
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-tertiary: #94a3b8;
+      
+      /* Shadows & Elevations */
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      --shadow-modal: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+      --ring-focus: 0 0 0 3px rgba(99, 102, 241, 0.3);
+
+      /* Spacing & Radii */
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --radius-full: 9999px;
+      
+      --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-spring: 300ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    [data-theme="dark"] {
+      --bg-app: #020617;
+      --bg-surface: #0f172a;
+      --bg-surface-hover: #1e293b;
+      --bg-glass: rgba(15, 23, 42, 0.85);
+      
+      --border-light: #1e293b;
+      --border-strong: #334155;
+      
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-tertiary: #64748b;
+      
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.5);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.6);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.7);
+      --shadow-modal: 0 25px 50px -12px rgb(0 0 0 / 0.9);
+      
+      --brand-50: rgba(99, 102, 241, 0.1);
+    }
+
+    /* ==========================================================================
+       2. RESET & BASE
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
     }
 
-    html,
-    body {
+    html, body {
+      height: 100%;
       width: 100%;
-      min-height: 100%;
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background: #ffffff;
-      color: #1f1f1f;
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      background-color: var(--bg-app);
+      color: var(--text-primary);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      transition: background-color var(--transition-fast), color var(--transition-fast);
       overflow-x: hidden;
-      transition: background-color 0.3s ease, color 0.3s ease;
     }
 
-    button,
-    input,
-    textarea {
+    /* Accessibility Focus States */
+    :focus-visible {
+      outline: none;
+      box-shadow: var(--ring-focus);
+      border-color: var(--border-focus);
+      border-radius: var(--radius-sm);
+    }
+
+    button, input, textarea {
       font-family: inherit;
+      border: none;
+      background: none;
     }
 
     button {
-      -webkit-tap-highlight-color: transparent;
+      cursor: pointer;
     }
 
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: var(--radius-full); }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary); }
+
+    /* ==========================================================================
+       3. LAYOUT & COMPONENTS
+       ========================================================================== */
+    .app-layout {
+      display: flex;
+      height: 100vh;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    /* --- Sidebar (Glassmorphism) --- */
     .sidebar {
       position: fixed;
-      top: 0;
-      left: 0;
+      z-index: 40;
+      top: 0; left: 0; bottom: 0;
       width: 280px;
-      height: 100vh;
-      background: #f0f4f9;
-      z-index: 1005;
-      transform: translateX(0);
-      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease;
-      overflow-y: auto;
+      background: var(--bg-glass);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-right: 1px solid var(--border-light);
       display: flex;
       flex-direction: column;
-      padding: 16px;
-      box-shadow: 4px 0 24px rgba(0, 0, 0, 0.08);
-    }
-
-    .sidebar.hidden {
       transform: translateX(-100%);
-      box-shadow: none;
+      transition: transform var(--transition-fast);
+      box-shadow: var(--shadow-lg);
     }
 
-    .sidebar-header {
-      padding: 8px 12px 16px 12px;
-      display: flex;
-      align-items: center;
+    .sidebar[aria-expanded="true"] {
+      transform: translateX(0);
     }
 
-    .sidebar-logo {
-      font-size: 20px;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      color: #041e49;
-      text-transform: uppercase;
-      transition: color 0.3s ease;
-    }
-
-    .sidebar-content {
-      flex: 1;
-      overflow-y: auto;
-    }
-
-    .sidebar-section-title {
-      font-size: 12px;
-      font-weight: 600;
-      text-transform: uppercase;
-      color: #444746;
-      letter-spacing: 0.5px;
-      margin: 24px 12px 8px 12px;
-    }
-
-    .notebook-list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .notebook-item {
+    .sidebar__header {
+      padding: 24px;
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 10px 16px;
-      border-radius: 28px;
-      font-size: 14px;
-      font-weight: 500;
-      color: #444746;
-      cursor: pointer;
-      transition: background-color 0.15s ease, color 0.15s ease;
     }
 
-    .notebook-item:hover {
-      background: #e1e6ed;
-      color: #1f1f1f;
+    .brand-logo {
+      width: 24px;
+      height: 24px;
+      background: var(--brand-600);
+      border-radius: 6px;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 0 12px var(--brand-50);
+    }
+    .brand-logo::after {
+      content: '';
+      width: 8px; height: 8px;
+      background: #fff;
+      border-radius: 2px;
+    }
+    .brand-title {
+      font-weight: 800;
+      font-size: 16px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
     }
 
-    .notebook-item.active {
-      background: #c2e7ff;
-      color: #001d35;
-      font-weight: 600;
+    .nav-group { padding: 0 16px; margin-bottom: 24px; }
+    .nav-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 0 8px;
+      margin-bottom: 8px;
     }
-
-    .sidebar-footer {
-      padding-top: 12px;
-      border-top: 1px solid #e1e6ed;
-      margin-top: auto;
-    }
-
-    .switch-notebook-btn {
-      width: 100%;
-      padding: 10px 16px;
-      background: #ffffff;
-      border: 1px solid #c7c7c7;
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 600;
-      color: #1f1f1f;
+    
+    .nav-list { list-style: none; display: grid; gap: 4px; }
+    .nav-item {
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 8px;
-      transition: all 0.2s ease;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: var(--radius-md);
+      color: var(--text-secondary);
+      font-size: 14px;
+      font-weight: 600;
+      transition: var(--transition-fast);
+    }
+    .nav-item:hover {
+      background: var(--bg-surface-hover);
+      color: var(--text-primary);
+    }
+    .nav-item[aria-selected="true"] {
+      background: var(--brand-50);
+      color: var(--brand-600);
     }
 
-    .switch-notebook-btn:hover {
-      background: #f1f3f4;
-      border-color: #b4b4b4;
-      color: #000;
+    /* --- Pomodoro Widget --- */
+    .pomodoro-widget {
+      margin: 0 16px;
+      padding: 20px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      text-align: center;
+      box-shadow: var(--shadow-sm);
     }
+    .pomodoro-time {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+      line-height: 1;
+    }
+    .btn-group { display: flex; gap: 8px; }
+    .btn {
+      flex: 1;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      transition: var(--transition-fast);
+    }
+    .btn--primary {
+      background: var(--brand-600);
+      color: #fff;
+    }
+    .btn--primary:hover { background: var(--brand-500); }
+    .btn--secondary {
+      background: var(--bg-surface-hover);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-light);
+    }
+    .btn--secondary:hover { color: var(--text-primary); border-color: var(--border-strong); }
 
+    /* --- Overlay --- */
     .overlay {
-      display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.3);
-      z-index: 1000;
-      backdrop-filter: blur(2px);
+      background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 30;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--transition-fast);
     }
+    .overlay.active { opacity: 1; pointer-events: auto; }
 
-    .overlay.active {
-      display: block;
-    }
-
+    /* --- Main Content Area --- */
     .main-content {
-      width: 100%;
-      min-height: 100vh;
-      padding: 24px;
-      background: #fff;
-      display: flex;
-      flex-direction: column;
-      transition: background-color 0.3s ease;
-    }
-
-    .header-bar {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-
-    .toggle-btn {
-      width: 40px;
-      height: 40px;
-      padding: 0;
-      font-size: 18px;
-      cursor: pointer;
-      border: none;
-      border-radius: 50%;
-      background: transparent;
-      color: #444746;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background-color 0.2s ease, color 0.3s ease;
-    }
-
-    .toggle-btn:hover {
-      background-color: #f0f4f9;
-    }
-
-    .toggle-btn:active {
-      transform: scale(0.92);
-    }
-
-    .schedule-logo {
-      font-weight: 700;
-      font-size: 26px;
-      letter-spacing: 0.5px;
-      color: #1f1f1f;
-      transition: color 0.3s ease;
-    }
-
-    .view-content {
-      width: 100%;
       flex: 1;
       display: flex;
       flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+      padding: 0 24px;
     }
 
-    .view-content.hidden {
-      display: none !important;
-    }
-
-    .container {
-      width: 100%;
-      display: flex;
-      gap: 15px;
-      margin: 25px auto 0;
-      padding-bottom: 10px;
-      overflow-x: auto;
-    }
-
-    .day-column {
-      flex: 1;
-      min-width: 180px;
-      display: flex;
-      flex-direction: column;
-      background: #f8f9fa;
-      border: 1px solid #e3e3e3;
-      border-radius: 12px;
-      transition: all 0.3s ease;
-    }
-
-    .day-header {
+    .topbar {
+      height: 72px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 12px 14px;
-      font-weight: 700;
-      background: #f0f4f9;
-      border-bottom: 1px solid #e3e3e3;
-      border-radius: 12px 12px 0 0;
-      transition: background-color 0.3s ease, border-color 0.3s ease;
+      flex-shrink: 0;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 16px; }
+    .icon-btn {
+      width: 40px; height: 40px;
+      display: grid; place-items: center;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-light);
+      background: var(--bg-surface);
+      color: var(--text-secondary);
+      font-size: 18px;
+      transition: var(--transition-fast);
+    }
+    .icon-btn:hover { background: var(--bg-surface-hover); color: var(--text-primary); }
+    
+    .view-title { font-size: 20px; font-weight: 700; }
+    
+    .clock-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px; font-weight: 600;
+      background: var(--brand-50);
+      color: var(--brand-600);
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      border: 1px solid rgba(99, 102, 241, 0.2);
     }
 
-    .day-name {
-      font-size: 15px;
-      color: #041e49;
-      transition: color 0.3s ease;
-    }
-
-    .day-content {
+    /* --- View Containers --- */
+    .view-container {
       flex: 1;
-      min-height: 650px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding-bottom: 24px;
+      display: none;
+    }
+    .view-container.active { display: block; }
+
+    /* --- Schedule Bento Grid --- */
+    .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      align-items: start;
+    }
+    
+    @media (min-width: 1440px) {
+      .bento-grid { grid-template-columns: repeat(7, 1fr); gap: 16px; }
+      .bento-grid > * { min-width: 0; }
+    }
+
+    .day-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      padding: 12px;
+      height: 600px;
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow var(--transition-fast), transform var(--transition-spring);
     }
+    .day-card:hover { box-shadow: var(--shadow-md); border-color: var(--border-strong); }
 
-    .add-task-box {
+    .day-card__header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-light);
       display: flex;
-      gap: 6px;
+      justify-content: space-between;
+      align-items: center;
     }
+    .day-name { font-weight: 700; font-size: 15px; }
 
-    .task-input {
+    .day-card__body {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
       flex: 1;
-      min-width: 0;
-      height: 36px;
-      padding: 6px 10px;
+      overflow: hidden;
+    }
+
+    /* --- Task System --- */
+    .task-input-wrapper { display: flex; gap: 8px; }
+    .input-base {
+      flex: 1;
+      height: 42px;
+      padding: 0 16px;
+      background: var(--bg-surface-hover);
+      border: 1px solid transparent;
+      border-radius: var(--radius-md);
       font-size: 14px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      outline: none;
-      background: #fff;
-      transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+      color: var(--text-primary);
+      transition: var(--transition-fast);
     }
-
-    .task-input:focus {
-      border-color: #0b57d0;
-    }
-
-    .add-btn {
-      width: 36px;
-      height: 36px;
-      flex-shrink: 0;
-      border: 0;
-      border-radius: 8px;
-      background: #0b57d0;
-      color: #fff;
-      font-size: 18px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background-color 0.2s ease;
-    }
-
-    .add-btn:active {
-      transform: scale(0.95);
+    .input-base:focus {
+      background: var(--bg-surface);
+      border-color: var(--border-focus);
+      box-shadow: var(--ring-focus);
     }
 
     .task-list {
+      list-style: none;
       display: flex;
       flex-direction: column;
       gap: 8px;
-      list-style: none;
+      overflow-y: auto;
+      flex: 1;
     }
-
     .task-item {
       display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 9px 12px;
-      background: #fff;
-      border: 1px solid #e2e2e2;
-      border-radius: 8px;
-      word-break: break-word;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.02);
-      transition: background-color 0.3s ease, border-color 0.3s ease;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      transition: var(--transition-fast);
+      animation: slideIn 0.2s ease-out;
     }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    
+    .task-item:hover { border-color: var(--border-strong); }
+    .task-item.is-completed { opacity: 0.6; }
+    .task-item.is-completed .task-text { text-decoration: line-through; color: var(--text-tertiary); }
 
-    .task-checkbox {
-      width: 18px;
-      height: 18px;
-      flex-shrink: 0;
+    .custom-checkbox {
+      appearance: none;
+      width: 20px; height: 20px;
+      border: 2px solid var(--border-strong);
+      border-radius: 6px;
+      background: var(--bg-surface);
       cursor: pointer;
+      display: grid;
+      place-content: center;
+      margin-top: 2px;
+      flex-shrink: 0;
+      transition: var(--transition-fast);
+    }
+    .custom-checkbox:checked {
+      background: var(--brand-600);
+      border-color: var(--brand-600);
+    }
+    .custom-checkbox:checked::before {
+      content: "";
+      width: 10px; height: 5px;
+      border-left: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      transform: rotate(-45deg) translate(2px, -2px);
     }
 
     .task-text {
+      flex: 1;
       font-size: 14px;
-      line-height: 1.4;
-      color: #333;
-      transition: color 0.3s ease;
+      font-weight: 500;
+      line-height: 1.5;
+      word-break: break-word;
+      transition: color 0.2s;
     }
 
-    .task-item.completed .task-text {
-      color: #888;
-      text-decoration: line-through;
-    }
-
-    .delete-btn {
-      width: 28px;
-      height: 28px;
-      margin-left: auto;
-      padding: 0;
-      border: 0;
-      border-radius: 50%;
-      background: transparent;
-      color: #999;
+    .btn-delete {
+      color: var(--text-tertiary);
       font-size: 18px;
-      cursor: pointer;
-      flex-shrink: 0;
+      width: 24px; height: 24px;
+      border-radius: 4px;
+      display: grid; place-items: center;
+      opacity: 0;
+      transition: var(--transition-fast);
     }
-
-    .delete-btn:hover {
-      background: #f5f5f5;
-      color: #dc3545;
-    }
-
-    .expand-btn {
-      width: 30px;
-      height: 30px;
-      padding: 0;
-      border: 0;
-      border-radius: 50%;
-      background: transparent;
-      color: #666;
-      font-size: 16px;
-      cursor: pointer;
-      transition: color 0.3s ease, background-color 0.3s ease;
-    }
-
-    .expand-btn:hover {
-      background: #e5e5e5;
-    }
-
-    .expand-btn:active {
-      transform: scale(0.9);
-    }
-
-    .day-column.expanded {
-      position: fixed;
-      top: 5vh;
-      left: 50%;
-      width: 90vw;
-      max-width: 1000px;
-      height: 90vh;
-      transform: translateX(-50%);
-      z-index: 1002;
-      overflow-y: auto;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
-      background: #fff;
-    }
-
-    .day-column.expanded .day-content {
-      min-height: auto;
-    }
+    .task-item:hover .btn-delete { opacity: 1; }
+    .btn-delete:hover { background: var(--danger-50); color: var(--danger-500); }
 
     .workspace-area {
-      display: none;
-      flex: 1;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 20px;
-      padding-top: 20px;
-      border-top: 2px dashed #ccc;
-    }
-
-    .day-column.expanded .workspace-area {
+      border-top: 1px dashed var(--border-light);
+      padding-top: 16px;
       display: flex;
+      flex-direction: column;
+      flex: 1;
     }
-
-    .workspace-area h4 {
-      color: #333;
-      transition: color 0.3s ease;
-    }
-
+    .workspace-area h4 { font-size: 12px; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 8px; }
     .workspace-textarea {
-      width: 100%;
       flex: 1;
-      min-height: 250px;
+      resize: none;
+      width: 100%;
       padding: 12px;
-      font-size: 14px;
-      line-height: 1.5;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      outline: none;
-      resize: vertical;
-      transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+      background: var(--bg-surface-hover);
+      border: 1px solid transparent;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      color: var(--text-primary);
+    }
+    .workspace-textarea:focus { background: var(--bg-surface); border-color: var(--border-focus); box-shadow: var(--ring-focus); }
+
+    /* --- Modal Expansion --- */
+    .day-card.is-expanded {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 90vw; max-width: 800px; height: 85vh;
+      z-index: 50;
+      box-shadow: var(--shadow-modal);
     }
 
-    .workspace-textarea:focus {
-      border-color: #0b57d0;
-    }
-
-    .notes-wrapper {
+    /* --- Editor View (Notes) --- */
+    .editor-container {
+      max-width: 900px;
+      margin: 0 auto;
+      height: 100%;
       display: flex;
       flex-direction: column;
-      gap: 15px;
-      margin-top: 25px;
-      flex: 1;
-      min-height: calc(100vh - 120px);
+      gap: 16px;
     }
-
-    .notes-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 10px;
-      padding-bottom: 12px;
-      border-bottom: 2px solid #f0f0f0;
-      transition: border-color 0.3s ease;
-    }
-
-    .notes-title {
-      font-size: 22px;
-      font-weight: 700;
-      color: #1a1a1a;
-      transition: color 0.3s ease;
-    }
-
-    .notes-meta {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .save-status {
-      font-size: 13px;
-      color: #28a745;
-      font-weight: 500;
-    }
-
-    .action-btn {
-      padding: 6px 12px;
-      font-size: 13px;
-      font-weight: 600;
-      color: #dc3545;
-      background: #fff;
-      border: 1px solid #dc3545;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .action-btn:hover {
-      background: #dc3545;
-      color: #fff;
-    }
-
-    .notes-textarea {
-      width: 100%;
-      flex: 1;
-      min-height: 400px;
-      padding: 18px;
-      font-size: 15px;
-      line-height: 1.6;
-      color: #2c3e50;
-      background: #fdfdfd;
-      border: 1px solid #e0e0e0;
-      border-radius: 12px;
-      outline: none;
-      resize: vertical;
-      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.03);
-      transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.2s ease;
-    }
-
-    .notes-textarea:focus {
-      border-color: #0b57d0;
-      background: #ffffff;
-      box-shadow: 0 0 0 3px rgba(11, 87, 208, 0.1);
-    }
-
-    .header-actions {
-      margin-left: auto;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .live-clock {
-      font-family: "Consolas", "Courier New", ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
-      font-size: 15px;
-      font-weight: 700;
-      color: #00ff66;
-      background: #09090b;
-      padding: 6px 14px;
-      border-radius: 6px;
-      letter-spacing: 2px;
-      border: 1px solid #18181b;
-      box-shadow: inset 0 0 6px rgba(0, 255, 102, 0.15), 0 0 10px rgba(0, 255, 102, 0.1);
-      text-shadow: 0 0 5px rgba(0, 255, 102, 0.75);
-      transition: all 0.3s ease;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .pomodoro-container {
-      margin: 0 12px;
-      padding: 16px;
-      background: #ffffff;
-      border-radius: 12px;
-      border: 1px solid #e1e6ed;
-      text-align: center;
-      transition: background-color 0.3s ease, border-color 0.3s ease;
-    }
-
-    .pomodoro-time {
-      font-size: 32px;
-      font-weight: 700;
-      color: #041e49;
-      margin-bottom: 12px;
-      font-variant-numeric: tabular-nums;
-      transition: color 0.3s ease;
-    }
-
-    .pomodoro-controls {
-      display: flex;
-      gap: 8px;
-      justify-content: center;
-    }
-
-    .pomodoro-btn {
-      flex: 1;
-      padding: 8px 12px;
-      font-size: 13px;
-      font-weight: 600;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: opacity 0.2s ease;
-    }
-
-    .pomodoro-btn.primary {
-      background: #0b57d0;
-      color: #fff;
-    }
-
-    .pomodoro-btn.secondary {
-      background: #f0f4f9;
-      color: #444746;
-    }
-
-    .pomodoro-btn:active {
-      transform: scale(0.96);
-    }
-
-    body.dark-mode {
-      background: #121212;
-      color: #e0e0e0;
-    }
-
-    body.dark-mode .sidebar {
-      background: #1e1e1e;
-      box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
-    }
-
-    body.dark-mode .main-content {
-      background: #121212;
-    }
-
-    body.dark-mode .day-column {
-      background: #1e1e1e;
-      border-color: #333;
-    }
-
-    body.dark-mode .day-header {
-      background: #2d2d2d;
-      border-color: #333;
-    }
-
-    body.dark-mode .day-name, 
-    body.dark-mode .schedule-logo, 
-    body.dark-mode .sidebar-logo,
-    body.dark-mode .workspace-area h4,
-    body.dark-mode .notes-title {
-      color: #ffffff;
-    }
-
-    body.dark-mode .sidebar-section-title {
-      color: #aaaaaa;
-    }
-
-    body.dark-mode .task-item {
-      background: #2d2d2d;
-      border-color: #444;
-    }
-
-    body.dark-mode .task-text {
-      color: #e0e0e0;
-    }
-
-    body.dark-mode .task-input,
-    body.dark-mode .workspace-textarea,
-    body.dark-mode .notes-textarea {
-      background: #121212;
-      border-color: #444;
-      color: #ffffff;
-    }
-
-    body.dark-mode .notebook-item {
-      color: #aaaaaa;
-    }
-
-    body.dark-mode .notebook-item:hover {
-      background: #333333;
-      color: #ffffff;
-    }
-
-    body.dark-mode .notebook-item.active {
-      background: #0b57d0;
-      color: #ffffff;
-    }
-
-    body.dark-mode .pomodoro-container,
-    body.dark-mode .switch-notebook-btn {
-      background: #2d2d2d;
-      border-color: #444;
-      color: #ffffff;
-    }
-
-    body.dark-mode .pomodoro-time {
-      color: #ffffff;
-    }
-
-    body.dark-mode .live-clock {
-      background: #000000;
-      color: #00f3ff;
-      border-color: #112233;
-      box-shadow: inset 0 0 6px rgba(0, 243, 255, 0.2), 0 0 10px rgba(0, 243, 255, 0.15);
-      text-shadow: 0 0 6px rgba(0, 243, 255, 0.8);
-    }
-
-    body.dark-mode .pomodoro-btn.secondary,
-    body.dark-mode .toggle-btn {
-      background: #2d2d2d;
-      color: #ffffff;
-    }
-
-    body.dark-mode .notes-header {
-      border-color: #333;
-    }
-
-    body.dark-mode .day-column.expanded {
-      background: #1e1e1e;
-    }
+    .editor-header { display: flex; justify-content: space-between; align-items: center; }
+    .save-status { font-size: 13px; font-weight: 600; color: var(--text-tertiary); display: flex; align-items: center; gap: 6px; }
+    .save-status.is-saved { color: var(--success-500); }
+    .save-status.is-saved::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--success-500); }
     
-    body.dark-mode .action-btn {
-      background: #1e1e1e;
+    .editor-textarea {
+      flex: 1;
+      width: 100%;
+      padding: 24px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      font-size: 15px;
+      line-height: 1.7;
+      resize: none;
+      box-shadow: var(--shadow-sm);
     }
+    .editor-textarea:focus { border-color: var(--border-focus); box-shadow: var(--ring-focus); }
 
+    /* --- Responsive --- */
     @media (max-width: 768px) {
-      .main-content {
-        padding: 15px;
-      }
-
-      .schedule-logo {
-        font-size: 22px;
-      }
-
-      .container {
-        flex-direction: column;
-        gap: 15px;
-        margin-top: 20px;
-        overflow-x: hidden;
-      }
-
-      .day-column {
-        width: 100%;
-        min-width: 0;
-      }
-
-      .day-content {
-        min-height: auto;
-      }
-
-      .sidebar {
-        width: 280px;
-      }
-
-      .day-column.expanded {
-        top: 2.5vh;
-        width: 95vw;
-        height: 95vh;
-      }
-
-      .task-input {
-        height: 42px;
-        font-size: 16px;
-      }
-
-      .add-btn {
-        width: 42px;
-        height: 42px;
-      }
-
-      .task-checkbox {
-        width: 20px;
-        height: 20px;
-      }
-
-      .delete-btn,
-      .expand-btn {
-        width: 36px;
-        height: 36px;
-      }
-
-      .workspace-textarea {
-        min-height: 150px;
-        font-size: 16px;
-      }
-
-      .notes-wrapper {
-        min-height: calc(100vh - 100px);
-      }
-
-      .live-clock {
-        display: none;
-      }
+      .main-content { padding: 0 16px; }
+      .bento-grid { grid-template-columns: 1fr; }
+      .day-card { height: auto; min-height: 500px; }
+      .topbar-right .clock-badge { display: none; }
     }
   </style>
 </head>
 <body>
-  <aside class="sidebar hidden" id="sidebar">
-    <div class="sidebar-header">
-      <div class="sidebar-logo">LAB</div>
+
+  <!-- Sidebar Component -->
+  <aside class="sidebar" id="app-sidebar" aria-expanded="false">
+    <div class="sidebar__header">
+      <div class="brand-logo"></div>
+      <span class="brand-title">Enterprise</span>
     </div>
     
-    <div class="sidebar-content">
-      <div class="sidebar-section-title">Notebooks</div>
-      <ul class="notebook-list">
-        <li class="notebook-item active" data-view="schedule">
-          <span>📅</span> Current Week Schedule
+    <nav class="nav-group">
+      <div class="nav-label">Workspace</div>
+      <ul class="nav-list" role="tablist">
+        <li>
+          <button class="nav-item" role="tab" aria-selected="true" data-target="view-schedule" style="width: 100%; border: none; text-align: left;">
+            📅 Master Schedule
+          </button>
         </li>
-        <li class="notebook-item" data-view="work-notes">
-          <span>📝</span> Work Notes
-        </li>
-        <li class="notebook-item" data-view="project-ideas">
-          <span>💡</span> Project Ideas
+        <li>
+          <button class="nav-item" role="tab" aria-selected="false" data-target="view-notes" style="width: 100%; border: none; text-align: left;">
+            📝 Engineering Notes
+          </button>
         </li>
       </ul>
-      
-      <div class="sidebar-section-title">Focus Timer</div>
-      <div class="pomodoro-container">
-        <div class="pomodoro-time" id="pomodoroDisplay">25:00</div>
-        <div class="pomodoro-controls">
-          <button id="pomodoroToggleBtn" class="pomodoro-btn primary" type="button">Start</button>
-          <button id="pomodoroResetBtn" class="pomodoro-btn secondary" type="button">Reset</button>
+    </nav>
+
+    <div class="nav-group" style="margin-top: auto;">
+      <div class="nav-label">Focus Protocol</div>
+      <div class="pomodoro-widget">
+        <div class="pomodoro-time" id="pomo-display">25:00</div>
+        <div class="btn-group">
+          <button class="btn btn--primary" id="pomo-toggle">Start</button>
+          <button class="btn btn--secondary" id="pomo-reset">Reset</button>
         </div>
       </div>
-    </div>
-
-    <div class="sidebar-footer">
-      <button class="switch-notebook-btn" id="switchNotebookBtn" type="button">
-        <span>🔄</span> Switch Notebook
-      </button>
     </div>
   </aside>
 
-  <div class="overlay" id="overlay"></div>
+  <div class="overlay" id="app-overlay"></div>
 
+  <!-- Main Application Area -->
   <main class="main-content">
-    <div class="header-bar">
-      <button class="toggle-btn" id="toggleBtn" type="button">☰</button>
-      <div class="schedule-logo" id="headerTitle">SCHEDULE</div>
-      <div class="header-actions">
-        <div class="live-clock" id="liveClock">00:00:00</div>
-        <button class="toggle-btn" id="themeToggleBtn" type="button">🌓</button>
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="icon-btn" id="btn-menu" aria-label="Toggle Sidebar">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+        <h1 class="view-title" id="topbar-title">Master Schedule</h1>
       </div>
-    </div>
-
-    <div class="view-content" id="scheduleView">
-      <div class="container">
-        <div class="day-column">
-          <div class="day-header">
-            <span class="day-name">Monday</span>
-          </div>
-          <div class="day-content">
-            <div class="add-task-box">
-              <input type="text" class="task-input" placeholder="+ add task..." />
-              <button class="add-btn" type="button">+</button>
-            </div>
-            <ul class="task-list"></ul>
-          </div>
-        </div>
-
-        <div class="day-column">
-          <div class="day-header">
-            <span class="day-name">Tuesday</span>
-          </div>
-          <div class="day-content">
-            <div class="add-task-box">
-              <input type="text" class="task-input" placeholder="+ add task..." />
-              <button class="add-btn" type="button">+</button>
-            </div>
-            <ul class="task-list"></ul>
-          </div>
-        </div>
-
-        <div class="day-column">
-          <div class="day-header">
-            <span class="day-name">Wednesday</span>
-          </div>
-          <div class="day-content">
-            <div class="add-task-box">
-              <input type="text" class="task-input" placeholder="+ add task..." />
-              <button class="add-btn" type="button">+</button>
-            </div>
-            <ul class="task-list"></ul>
-          </div>
-        </div>
-
-        <div class="day-column">
-          <div class="day-header">
-            <span class="day-name">Thursday</span>
-          </div>
-          <div class="day-content">
-            <div class="add-task-box">
-              <input type="text" class="task-input" placeholder="+ add task..." />
-              <button class="add-btn" type="button">+</button>
-            </div>
-            <ul class="task-list"></ul>
-          </div>
-        </div>
-
-        <div class="day-column">
-          <div class="day-header">
-            <span class="day-name">Friday</span>
-          </div>
-          <div class="day-content">
-            <div class="add-task-box">
-              <input type="text" class="task-input" placeholder="+ add task..." />
-              <button class="add-btn" type="button">+</button>
-            </div>
-            <ul class="task-list"></ul>
-          </div>
-        </div>
-
-        <div class="day-column">
-          <div class="day-header">
-            <span class="day-name">Saturday</span>
-          </div>
-          <div class="day-content">
-            <div class="add-task-box">
-              <input type="text" class="task-input" placeholder="+ add task..." />
-              <button class="add-btn" type="button">+</button>
-            </div>
-            <ul class="task-list"></ul>
-          </div>
-        </div>
-
-        <div class="day-column">
-          <div class="day-header">
-            <span class="day-name">Sunday</span>
-          </div>
-          <div class="day-content">
-            <div class="add-task-box">
-              <input type="text" class="task-input" placeholder="+ add task..." />
-              <button class="add-btn" type="button">+</button>
-            </div>
-            <ul class="task-list"></ul>
-          </div>
-        </div>
+      <div class="topbar-right" style="display: flex; gap: 12px; align-items: center;">
+        <div class="clock-badge" id="live-clock">00:00:00</div>
+        <button class="icon-btn" id="btn-theme" aria-label="Toggle Theme">🌓</button>
       </div>
-    </div>
+    </header>
 
-    <div class="view-content hidden" id="workNotesView">
-      <div class="notes-wrapper">
-        <div class="notes-header">
-          <h2 class="notes-title">📝 Work Notes</h2>
-          <div class="notes-meta">
-            <span id="workNotesStatus" class="save-status">Auto-saved</span>
-            <button type="button" id="clearWorkNotesBtn" class="action-btn">Clear Notes</button>
-          </div>
-        </div>
-        <textarea id="workNotesArea" class="notes-textarea" placeholder="Type your work notes here..."></textarea>
+    <!-- Route: Schedule View -->
+    <section class="view-container active" id="view-schedule">
+      <div class="bento-grid" id="schedule-grid">
+        <!-- Rendered by JS to keep HTML DRY -->
       </div>
-    </div>
+    </section>
 
-    <div class="view-content hidden" id="projectIdeasView">
-      <div class="notes-wrapper">
-        <div class="notes-header">
-          <h2 class="notes-title">💡 Project Ideas</h2>
-          <div class="notes-meta">
-            <span id="projectIdeasStatus" class="save-status">Auto-saved</span>
-            <button type="button" id="clearProjectIdeasBtn" class="action-btn">Clear Notes</button>
-          </div>
+    <!-- Route: Notes View -->
+    <section class="view-container" id="view-notes">
+      <div class="editor-container">
+        <div class="editor-header">
+          <h2 class="view-title" style="font-size: 16px;">Technical Documentation</h2>
+          <span class="save-status is-saved" id="notes-status">Synced</span>
         </div>
-        <textarea id="projectIdeasArea" class="notes-textarea" placeholder="Type your project ideas here..."></textarea>
+        <textarea class="editor-textarea" id="notes-editor" placeholder="Write architectural decisions, API structures, or C# concepts here..."></textarea>
       </div>
-    </div>
+    </section>
+
   </main>
 
   <script>
-    const STORAGE_KEY = "myScheduleApp";
-    const WORK_NOTES_KEY = "myScheduleApp_workNotes";
-    const PROJECT_IDEAS_KEY = "myScheduleApp_projectIdeas";
-    const THEME_KEY = "myScheduleApp_theme";
+    /**
+     * ==========================================================================
+     * ENTERPRISE APP ARCHITECTURE (Vanilla JS Modular Pattern)
+     * ==========================================================================
+     */
 
-    const toggleBtn = document.getElementById("toggleBtn");
-    const sidebar = document.getElementById("sidebar");
-    const overlay = document.getElementById("overlay");
-    const switchNotebookBtn = document.getElementById("switchNotebookBtn");
-    const headerTitle = document.getElementById("headerTitle");
-    const liveClock = document.getElementById("liveClock");
-    const themeToggleBtn = document.getElementById("themeToggleBtn");
-    const pomodoroDisplay = document.getElementById("pomodoroDisplay");
-    const pomodoroToggleBtn = document.getElementById("pomodoroToggleBtn");
-    const pomodoroResetBtn = document.getElementById("pomodoroResetBtn");
+    // --- 1. CONFIGURATION & CONSTANTS ---
+    const CONFIG = {
+      APP_KEY: 'Enterprise_App_State_v1',
+      DAYS: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+      DEFAULT_POMODORO: 25 * 60
+    };
 
-    let pomodoroTime = 1500;
-    let pomodoroInterval;
-    let isPomodoroRunning = false;
-
-    function updateLiveClock() {
-      const now = new Date();
-      liveClock.textContent = now.toLocaleTimeString('en-US', { 
-        hour: '2-digit', 
-        minute: '2-digit', 
-        second: '2-digit',
-        hour12: false
-      });
-    }
-
-    function initTheme() {
-      const savedTheme = localStorage.getItem(THEME_KEY);
-      if (savedTheme === "dark") {
-        document.body.classList.add("dark-mode");
-      }
-    }
-
-    themeToggleBtn.addEventListener("click", () => {
-      document.body.classList.toggle("dark-mode");
-      const isDark = document.body.classList.contains("dark-mode");
-      localStorage.setItem(THEME_KEY, isDark ? "dark" : "light");
-    });
-
-    function formatPomodoroTime(seconds) {
-      const m = Math.floor(seconds / 60).toString().padStart(2, '0');
-      const s = (seconds % 60).toString().padStart(2, '0');
-      return `${m}:${s}`;
-    }
-
-    function updatePomodoroUI() {
-      pomodoroDisplay.textContent = formatPomodoroTime(pomodoroTime);
-    }
-
-    pomodoroToggleBtn.addEventListener("click", () => {
-      if (isPomodoroRunning) {
-        clearInterval(pomodoroInterval);
-        pomodoroToggleBtn.textContent = "Resume";
-        isPomodoroRunning = false;
-      } else {
-        pomodoroToggleBtn.textContent = "Pause";
-        isPomodoroRunning = true;
-        pomodoroInterval = setInterval(() => {
-          if (pomodoroTime > 0) {
-            pomodoroTime--;
-            updatePomodoroUI();
-          } else {
-            clearInterval(pomodoroInterval);
-            isPomodoroRunning = false;
-            pomodoroToggleBtn.textContent = "Start";
-            pomodoroTime = 1500;
-            updatePomodoroUI();
-            alert("Focus session complete!");
-          }
-        }, 1000);
-      }
-    });
-
-    pomodoroResetBtn.addEventListener("click", () => {
-      clearInterval(pomodoroInterval);
-      isPomodoroRunning = false;
-      pomodoroToggleBtn.textContent = "Start";
-      pomodoroTime = 1500;
-      updatePomodoroUI();
-    });
-
-    function closeExpandedDays() {
-      document.querySelectorAll(".day-column.expanded").forEach((column) => {
-        column.classList.remove("expanded");
-        const button = column.querySelector(".expand-btn");
-        if (button) {
-          button.textContent = "⛶";
-        }
-      });
-    }
-
-    function closeSidebar() {
-      sidebar.classList.add("hidden");
-      overlay.classList.remove("active");
-    }
-
-    function openSidebar() {
-      sidebar.classList.remove("hidden");
-      overlay.classList.add("active");
-    }
-
-    function closeOverlay() {
-      closeExpandedDays();
-      closeSidebar();
-    }
-
-    function switchView(viewName) {
-      document.querySelectorAll(".notebook-item").forEach((item) => {
-        if (item.getAttribute("data-view") === viewName) {
-          item.classList.add("active");
-        } else {
-          item.classList.remove("active");
-        }
-      });
-
-      document.querySelectorAll(".view-content").forEach((view) => {
-        view.classList.add("hidden");
-      });
-
-      if (viewName === "schedule") {
-        document.getElementById("scheduleView").classList.remove("hidden");
-        headerTitle.textContent = "SCHEDULE";
-      } else if (viewName === "work-notes") {
-        document.getElementById("workNotesView").classList.remove("hidden");
-        headerTitle.textContent = "WORK NOTES";
-      } else if (viewName === "project-ideas") {
-        document.getElementById("projectIdeasView").classList.remove("hidden");
-        headerTitle.textContent = "PROJECT IDEAS";
-      }
-
-      closeOverlay();
-    }
-
-    function saveData() {
-      const scheduleData = {};
-      document.querySelectorAll(".day-column").forEach((column) => {
-        const dayName = column.querySelector(".day-name")?.textContent;
-        if (!dayName) return;
-
-        const tasks = Array.from(
-          column.querySelectorAll(".task-item")
-        ).map((item) => ({
-          text: item.querySelector(".task-text")?.textContent || "",
-          completed: item.querySelector(".task-checkbox")?.checked || false
-        }));
-
-        const textarea = column.querySelector(".workspace-textarea");
-
-        scheduleData[dayName] = {
-          tasks,
-          workspaceText: textarea ? textarea.value : ""
+    // --- 2. UTILITIES (Performance & Security) ---
+    const Utils = {
+      // Debounce: Prevents firing intensive functions (like saving to DB/Storage) too frequently
+      debounce: (func, delay) => {
+        let timeout;
+        return (...args) => {
+          clearTimeout(timeout);
+          timeout = setTimeout(() => func(...args), delay);
         };
-      });
+      },
+      
+      // Generate Unique ID (UUID-like) for entities
+      generateId: () => Math.random().toString(36).substring(2, 11),
+      
+      // Prevent XSS attacks by escaping HTML chars (Crucial for SaaS)
+      escapeHTML: (str) => {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+      },
+      
+      // Format seconds into MM:SS
+      formatTime: (seconds) => {
+        const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+        const s = (seconds % 60).toString().padStart(2, '0');
+        return `${m}:${s}`;
+      }
+    };
 
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(scheduleData));
-    }
-
-    function createTaskElement(task, taskList) {
-      const li = document.createElement("li");
-      li.className = "task-item";
-
-      if (task.completed) {
-        li.classList.add("completed");
+    // --- 3. STATE MANAGEMENT (Centralized Store) ---
+    class Store {
+      constructor(key) {
+        this.key = key;
+        this.state = this.load() || this.getInitialState();
       }
 
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.className = "task-checkbox";
-      checkbox.checked = task.completed;
+      getInitialState() {
+        const state = { schedule: {}, notes: "", theme: "light" };
+        CONFIG.DAYS.forEach(day => {
+          state.schedule[day] = { tasks: [], workspace: "" };
+        });
+        return state;
+      }
 
-      const text = document.createElement("span");
-      text.className = "task-text";
-      text.textContent = task.text;
+      load() {
+        try {
+          const data = localStorage.getItem(this.key);
+          return data ? JSON.parse(data) : null;
+        } catch (e) {
+          console.error("Storage read error", e);
+          return null;
+        }
+      }
 
-      const deleteBtn = document.createElement("button");
-      deleteBtn.type = "button";
-      deleteBtn.className = "delete-btn";
-      deleteBtn.textContent = "×";
-      deleteBtn.setAttribute("aria-label", "Delete task");
-
-      deleteBtn.addEventListener("click", () => {
-        li.remove();
-        saveData();
-      });
-
-      checkbox.addEventListener("change", () => {
-        li.classList.toggle("completed", checkbox.checked);
-        saveData();
-      });
-
-      li.append(checkbox, text, deleteBtn);
-      taskList.appendChild(li);
+      save() {
+        try {
+          localStorage.setItem(this.key, JSON.stringify(this.state));
+        } catch (e) {
+          console.error("Storage write error - Quota exceeded?", e);
+        }
+      }
     }
 
-    function addWorkspace(column) {
-      const dayContent = column.querySelector(".day-content");
-      const workspace = document.createElement("div");
-      workspace.className = "workspace-area";
+    // --- 4. COMPONENTS ---
 
-      workspace.innerHTML = `
-        <h4>Workspace</h4>
-        <textarea
-          class="workspace-textarea"
-          placeholder="Enter workspace notes here..."
-        ></textarea>
-      `;
+    // Pomodoro Timer Controller
+    class PomodoroTimer {
+      constructor(displayEl, toggleBtn, resetBtn) {
+        this.display = displayEl;
+        this.toggleBtn = toggleBtn;
+        this.resetBtn = resetBtn;
+        this.timeLeft = CONFIG.DEFAULT_POMODORO;
+        this.interval = null;
+        this.isRunning = false;
 
-      dayContent.appendChild(workspace);
-      const textarea = workspace.querySelector(".workspace-textarea");
-      textarea.addEventListener("input", saveData);
+        this.bindEvents();
+        this.updateUI();
+      }
+
+      bindEvents() {
+        this.toggleBtn.addEventListener('click', () => this.toggle());
+        this.resetBtn.addEventListener('click', () => this.reset());
+      }
+
+      toggle() {
+        if (this.isRunning) {
+          clearInterval(this.interval);
+          this.toggleBtn.textContent = 'Start';
+        } else {
+          this.toggleBtn.textContent = 'Pause';
+          this.interval = setInterval(() => this.tick(), 1000);
+        }
+        this.isRunning = !this.isRunning;
+      }
+
+      tick() {
+        if (this.timeLeft > 0) {
+          this.timeLeft--;
+          this.updateUI();
+        } else {
+          this.reset();
+          alert("Focus session completed!"); // Replace with Native Notification in real SaaS
+        }
+      }
+
+      reset() {
+        clearInterval(this.interval);
+        this.isRunning = false;
+        this.timeLeft = CONFIG.DEFAULT_POMODORO;
+        this.toggleBtn.textContent = 'Start';
+        this.updateUI();
+      }
+
+      updateUI() {
+        this.display.textContent = Utils.formatTime(this.timeLeft);
+      }
     }
 
-    function setupDayColumn(column, savedData) {
-      const dayName = column.querySelector(".day-name").textContent;
-      const taskList = column.querySelector(".task-list");
-      const input = column.querySelector(".task-input");
-      const addBtn = column.querySelector(".add-btn");
-      const header = column.querySelector(".day-header");
+    // Schedule View Controller
+    class ScheduleManager {
+      constructor(store) {
+        this.store = store;
+        this.container = document.getElementById('schedule-grid');
+        this.renderGrid();
+        this.bindGlobalEvents();
+      }
 
-      addWorkspace(column);
-
-      const expandBtn = document.createElement("button");
-      expandBtn.type = "button";
-      expandBtn.className = "expand-btn";
-      expandBtn.textContent = "⛶";
-      expandBtn.setAttribute("aria-label", `Expand ${dayName}`);
-
-      header.appendChild(expandBtn);
-
-      const dayData = savedData[dayName];
-
-      if (dayData) {
-        const tasks = Array.isArray(dayData) ? dayData : dayData.tasks || [];
-        tasks.forEach((task) => {
-          createTaskElement(task, taskList);
+      renderGrid() {
+        // Using DocumentFragment for performance batch DOM insertion
+        const fragment = document.createDocumentFragment();
+        
+        CONFIG.DAYS.forEach(day => {
+          const dayData = this.store.state.schedule[day];
+          
+          const col = document.createElement('div');
+          col.className = 'day-card';
+          col.dataset.day = day;
+          
+          // Using strict text binding or semantic HTML structure to prevent XSS
+          col.innerHTML = `
+            <div class="day-card__header">
+              <span class="day-name">${day}</span>
+              <button class="icon-btn btn-expand" style="width:28px; height:28px;" aria-label="Expand">⛶</button>
+            </div>
+            <div class="day-card__body">
+              <div class="task-input-wrapper">
+                <input type="text" class="input-base task-input" placeholder="Add task (Press Enter)..." aria-label="New task">
+                <button class="icon-btn btn-add" style="background:var(--brand-600); color:white; border:none;" aria-label="Add">+</button>
+              </div>
+              <ul class="task-list">
+                ${this.renderTasksHTML(dayData.tasks)}
+              </ul>
+              <div class="workspace-area">
+                <h4>Workspace Notes</h4>
+                <textarea class="workspace-textarea">${Utils.escapeHTML(dayData.workspace)}</textarea>
+              </div>
+            </div>
+          `;
+          fragment.appendChild(col);
         });
 
-        const textarea = column.querySelector(".workspace-textarea");
-        textarea.value = Array.isArray(dayData) ? "" : dayData.workspaceText || "";
+        this.container.appendChild(fragment);
       }
 
-      expandBtn.addEventListener("click", (event) => {
-        event.stopPropagation();
-        const isExpanded = column.classList.contains("expanded");
-        closeExpandedDays();
+      renderTasksHTML(tasks) {
+        return tasks.map(task => `
+          <li class="task-item ${task.completed ? 'is-completed' : ''}" data-id="${task.id}">
+            <input type="checkbox" class="custom-checkbox" ${task.completed ? 'checked' : ''} aria-label="Mark done">
+            <span class="task-text">${Utils.escapeHTML(task.text)}</span>
+            <button class="btn-delete" aria-label="Delete">×</button>
+          </li>
+        `).join('');
+      }
 
-        if (!isExpanded) {
-          column.classList.add("expanded");
-          expandBtn.textContent = "×";
-          overlay.classList.add("active");
-        } else {
-          overlay.classList.remove("active");
-        }
-      });
+      // Event Delegation: One listener on container instead of hundreds on individual elements
+      bindGlobalEvents() {
+        this.container.addEventListener('click', (e) => {
+          const dayCard = e.target.closest('.day-card');
+          if (!dayCard) return;
+          const day = dayCard.dataset.day;
 
-      function addTask() {
+          // Handle Expand
+          if (e.target.closest('.btn-expand')) {
+            dayCard.classList.toggle('is-expanded');
+            document.getElementById('app-overlay').classList.toggle('active');
+            e.target.textContent = dayCard.classList.contains('is-expanded') ? '×' : '⛶';
+          }
+
+          // Handle Add Button
+          if (e.target.closest('.btn-add')) {
+            this.addTask(dayCard, day);
+          }
+
+          // Handle Delete
+          if (e.target.closest('.btn-delete')) {
+            const taskItem = e.target.closest('.task-item');
+            this.deleteTask(day, taskItem.dataset.id);
+            taskItem.remove();
+          }
+
+          // Handle Checkbox
+          if (e.target.classList.contains('custom-checkbox')) {
+            const taskItem = e.target.closest('.task-item');
+            const isChecked = e.target.checked;
+            this.toggleTask(day, taskItem.dataset.id, isChecked);
+            taskItem.classList.toggle('is-completed', isChecked);
+          }
+        });
+
+        // Handle Input Enter Key
+        this.container.addEventListener('keydown', (e) => {
+          if (e.target.classList.contains('task-input') && e.key === 'Enter') {
+            const dayCard = e.target.closest('.day-card');
+            this.addTask(dayCard, dayCard.dataset.day);
+          }
+        });
+
+        // Debounced Input for Workspace Textareas
+        const saveWorkspace = Utils.debounce((day, text) => {
+          this.store.state.schedule[day].workspace = text;
+          this.store.save();
+        }, 500);
+
+        this.container.addEventListener('input', (e) => {
+          if (e.target.classList.contains('workspace-textarea')) {
+            const day = e.target.closest('.day-card').dataset.day;
+            saveWorkspace(day, e.target.value);
+          }
+        });
+      }
+
+      addTask(dayCard, day) {
+        const input = dayCard.querySelector('.task-input');
         const text = input.value.trim();
         if (!text) return;
 
-        createTaskElement({ text, completed: false }, taskList);
+        const newTask = { id: Utils.generateId(), text, completed: false };
+        this.store.state.schedule[day].tasks.push(newTask);
+        this.store.save();
 
-        input.value = "";
+        const taskList = dayCard.querySelector('.task-list');
+        taskList.insertAdjacentHTML('beforeend', this.renderTasksHTML([newTask]));
+        
+        input.value = '';
         input.focus();
-        saveData();
       }
 
-      addBtn.addEventListener("click", addTask);
+      deleteTask(day, id) {
+        this.store.state.schedule[day].tasks = this.store.state.schedule[day].tasks.filter(t => t.id !== id);
+        this.store.save();
+      }
 
-      input.addEventListener("keydown", (event) => {
-        if (event.key === "Enter") {
-          event.preventDefault();
-          addTask();
+      toggleTask(day, id, completed) {
+        const task = this.store.state.schedule[day].tasks.find(t => t.id === id);
+        if (task) {
+          task.completed = completed;
+          this.store.save();
         }
-      });
+      }
     }
 
-    function setupNotesSection(textareaId, statusId, clearBtnId, storageKey) {
-      const textarea = document.getElementById(textareaId);
-      const statusEl = document.getElementById(statusId);
-      const clearBtn = document.getElementById(clearBtnId);
+    // --- 5. APP ORCHESTRATOR ---
+    class App {
+      constructor() {
+        this.store = new Store(CONFIG.APP_KEY);
+        this.initUI();
+        this.bindEvents();
+        
+        // Initialize Components
+        new ScheduleManager(this.store);
+        new PomodoroTimer(
+          document.getElementById('pomo-display'),
+          document.getElementById('pomo-toggle'),
+          document.getElementById('pomo-reset')
+        );
 
-      if (!textarea) return;
-
-      const savedContent = localStorage.getItem(storageKey);
-      if (savedContent !== null) {
-        textarea.value = savedContent;
+        this.startClock();
       }
 
-      let saveTimeout;
-      textarea.addEventListener("input", () => {
-        statusEl.textContent = "Saving...";
-        statusEl.style.color = "#e67e22";
+      initUI() {
+        // Theme init
+        document.documentElement.setAttribute('data-theme', this.store.state.theme);
+        
+        // Notes init
+        const notesEditor = document.getElementById('notes-editor');
+        notesEditor.value = this.store.state.notes || "";
+      }
 
-        clearTimeout(saveTimeout);
-        saveTimeout = setTimeout(() => {
-          localStorage.setItem(storageKey, textarea.value);
-          statusEl.textContent = "Auto-saved";
-          statusEl.style.color = "#28a745";
-        }, 400);
-      });
+      bindEvents() {
+        // Theme Toggle
+        document.getElementById('btn-theme').addEventListener('click', () => {
+          const current = document.documentElement.getAttribute('data-theme');
+          const next = current === 'dark' ? 'light' : 'dark';
+          document.documentElement.setAttribute('data-theme', next);
+          this.store.state.theme = next;
+          this.store.save();
+        });
 
-      if (clearBtn) {
-        clearBtn.addEventListener("click", () => {
-          if (confirm("Are you sure you want to delete all notes?")) {
-            textarea.value = "";
-            localStorage.removeItem(storageKey);
-            statusEl.textContent = "Cleared";
-            statusEl.style.color = "#dc3545";
-            setTimeout(() => {
-              statusEl.textContent = "Auto-saved";
-              statusEl.style.color = "#28a745";
-            }, 1500);
-          }
+        // Sidebar & Overlay Toggle
+        const sidebar = document.getElementById('app-sidebar');
+        const overlay = document.getElementById('app-overlay');
+        const toggleSidebar = () => {
+          const isExpanded = sidebar.getAttribute('aria-expanded') === 'true';
+          sidebar.setAttribute('aria-expanded', !isExpanded);
+          overlay.classList.toggle('active', !isExpanded);
+        };
+        
+        document.getElementById('btn-menu').addEventListener('click', toggleSidebar);
+        overlay.addEventListener('click', () => {
+          sidebar.setAttribute('aria-expanded', 'false');
+          overlay.classList.remove('active');
+          // Also close expanded day cards
+          document.querySelectorAll('.day-card.is-expanded').forEach(el => {
+            el.classList.remove('is-expanded');
+            el.querySelector('.btn-expand').textContent = '⛶';
+          });
+        });
+
+        // Navigation (SPA Routing Simulator)
+        document.querySelectorAll('.nav-item').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            // Update Nav State
+            document.querySelectorAll('.nav-item').forEach(b => b.setAttribute('aria-selected', 'false'));
+            btn.setAttribute('aria-selected', 'true');
+            
+            // Switch Views
+            const targetId = btn.dataset.target;
+            document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
+            document.getElementById(targetId).classList.add('active');
+            
+            // Update Title
+            document.getElementById('topbar-title').textContent = btn.textContent.trim().replace(/[📅📝]/g, '');
+            
+            // Close Sidebar on mobile
+            if(window.innerWidth < 768) toggleSidebar();
+          });
+        });
+
+        // Editor Debounce Save
+        const notesStatus = document.getElementById('notes-status');
+        const saveNotes = Utils.debounce((text) => {
+          this.store.state.notes = text;
+          this.store.save();
+          notesStatus.textContent = 'Synced';
+          notesStatus.classList.add('is-saved');
+        }, 800);
+
+        document.getElementById('notes-editor').addEventListener('input', (e) => {
+          notesStatus.textContent = 'Saving...';
+          notesStatus.classList.remove('is-saved');
+          notesStatus.style.color = 'var(--text-tertiary)';
+          saveNotes(e.target.value);
         });
       }
+
+      startClock() {
+        const clockEl = document.getElementById('live-clock');
+        setInterval(() => {
+          const now = new Date();
+          clockEl.textContent = now.toLocaleTimeString('en-US', { hour12: false });
+        }, 1000);
+      }
     }
 
-    function initApp() {
-      initTheme();
-      updateLiveClock();
-      setInterval(updateLiveClock, 1000);
-
-      let savedData = {};
-      try {
-        savedData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
-      } catch {
-        savedData = {};
-      }
-
-      document.querySelectorAll(".day-column").forEach((column) => {
-        setupDayColumn(column, savedData);
-      });
-
-      setupNotesSection("workNotesArea", "workNotesStatus", "clearWorkNotesBtn", WORK_NOTES_KEY);
-      setupNotesSection("projectIdeasArea", "projectIdeasStatus", "clearProjectIdeasBtn", PROJECT_IDEAS_KEY);
-
-      document.querySelectorAll(".notebook-item").forEach((item) => {
-        item.addEventListener("click", () => {
-          const viewName = item.getAttribute("data-view");
-          if (viewName) {
-            switchView(viewName);
-          }
-        });
-      });
-
-      sidebar.classList.add("hidden");
-    }
-
-    toggleBtn.addEventListener("click", () => {
-      const isHidden = sidebar.classList.contains("hidden");
-      if (isHidden) {
-        openSidebar();
-      } else {
-        closeSidebar();
-      }
+    // --- 6. BOOTSTRAP ---
+    document.addEventListener('DOMContentLoaded', () => {
+      new App();
     });
 
-    switchNotebookBtn.addEventListener("click", () => {
-      alert("Switch notebook feature is under development!");
-    });
-
-    overlay.addEventListener("click", closeOverlay);
-
-    document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape") {
-        closeOverlay();
-      }
-    });
-
-    initApp();
   </script>
 </body>
 </html>
