@@ -6,7 +6,18 @@ const cart = [
   { id: "P05", name: "XL Mousepad", price: 250000, quantity: 5, category: "Gear", inStock: true }
 ];
 
+// MAP()
 const newCart = cart.map(item => ({
     name: item.name,
     total: item.price * item.quantity
 }));
+
+// FILTER()
+const instockItems = cart.filter(item => item.inStock);
+
+// REDUCE()
+const totalPrice = newCart.reduce((acc, item) => acc + item.total, 0);
+
+console.log(newCart);
+console.log(instockItems);
+console.log(totalPrice);
