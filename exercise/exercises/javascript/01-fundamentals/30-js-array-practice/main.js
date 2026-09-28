@@ -18,6 +18,10 @@ const instockItems = cart.filter(item => item.inStock);
 // REDUCE()
 const totalPrice = newCart.reduce((acc, item) => acc + item.total, 0);
 
+// FIND()
+const foundProduct = cart.find(item => item.id === "P03");
+
 console.log(newCart);
 console.log(instockItems);
 console.log(totalPrice);
+console.log(foundProduct);
