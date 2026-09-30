@@ -21,7 +21,15 @@ const totalPrice = newCart.reduce((acc, item) => acc + item.total, 0);
 // FIND()
 const foundProduct = cart.find(item => item.id === "P03");
 
+// SOME()
+const hasOutOfStock = cart.some(item => !item.inStock);
+
+// EVERY()
+const allInStock = cart.every(item => item.inStock);
+
 console.log(newCart);
 console.log(instockItems);
 console.log(totalPrice);
-console.log(foundProduct);
+console.log(foundProduct);a
+console.log(hasOutOfStock);
+console.log(allInStock);
